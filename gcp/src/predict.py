@@ -28,6 +28,7 @@ df_tour = pd.read_csv('../input/NCAATourneyCompactResults.csv')
 
 df_seeds['seed_int'] = df_seeds['Seed'].apply( lambda x : int(x[1:3]) )
 
+# renames
 df_winseeds = df_seeds.loc[:, ['TeamID', 'Season', 'seed_int']].rename(columns={'TeamID':'WTeamID', 'seed_int':'WSeed'})
 df_lossseeds = df_seeds.loc[:, ['TeamID', 'Season', 'seed_int']].rename(columns={'TeamID':'LTeamID', 'seed_int':'LSeed'})
 df_dummy = pd.merge(left=df_tour, right=df_winseeds, how='left', on=['Season', 'WTeamID'])

@@ -1,0 +1,8 @@
+*.csv
+.envrc
+*.gz
+*.tsv
+*.jpeg
+*.jpg
+venv
+.#*
