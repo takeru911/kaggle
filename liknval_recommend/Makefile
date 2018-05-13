@@ -5,3 +5,6 @@ run-cache:
 
 run:
 	cd src && python model.py 1
+
+up-notebook:
+	cd notebook && jupyter notebook &
