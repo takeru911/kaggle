@@ -11,7 +11,6 @@ from scipy.sparse import lil_matrix
 from scipy.sparse.linalg import spsolve
 
 
-
 def load_dense_matrix(is_init):
     print(is_init)
     R = lil_matrix((158392, 69667))
@@ -59,6 +58,18 @@ for rating_list in result.T:
            })
        })
    i = i + 1
+# 以下の実装は共通処理として切り出そう
+# なので、このmodel.pyもmf.pyなどに直す
+# 各モデルは
+# {
+#  "user_id":
+#  "events": {
+#    "event_id":,
+#    "rating":
+#   } 
+# }
+# みたいなlistを返すことを期待してfilter処理なんかを作っていこう。
+# だからこのスクリプトもべたでいろいろ書いてるが最終的にはapply? fit?みたいな関数にする
 log = pd.read_csv("../input/all/log.tsv", sep="\t")
 join_list = filter.user_join_list(log)
 user_not_join_list = filter.join_event_filter(1, user_recommend_pre_list[0]["events"], join_list)
