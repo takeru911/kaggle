@@ -23,5 +23,3 @@ def age_filter(user_id, join_event_list, event_details, user_detail):
         print("female")
         return join_event_detail[((join_event_detail["female_age_lower"] < age) & (join_event_detail["female_age_upper"] > age))]
 
-
-
