@@ -70,9 +70,15 @@ for rating_list in result.T:
 # }
 # みたいなlistを返すことを期待してfilter処理なんかを作っていこう。
 # だからこのスクリプトもべたでいろいろ書いてるが最終的にはapply? fit?みたいな関数にする
+
 log = pd.read_csv("../input/all/log.tsv", sep="\t")
+events = pd.read_csv("../input/all/filled_events.csv")
+users = pd.read_csv("../input/all/users.tsv", sep="\t")
+test_target = pd.read_csv("../input/all/test.tsv", sep="\t")
 join_list = filter.user_join_list(log)
 user_not_join_list = filter.join_event_filter(1, user_recommend_pre_list[0]["events"], join_list)
-filtered_join_recommend_list = filter.join_event_filter(1, user_recommend_pre_list[0]["events"], join_list)
+filtered_join_event_recommend_list = filter.join_event_filter(1, user_recommend_pre_list[0]["events"], join_list)
+filtered_age_recommend_list = filter.age_filter(1, filtered_join_event_recommend_list, events, users)
+test_user_recommend_list = pd.merge(test_target, filtered_age_recommend_list)
 
 #io.savemat("result", {"result": result})
