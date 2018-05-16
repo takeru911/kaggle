@@ -12,7 +12,6 @@ from scipy.sparse.linalg import spsolve
 
 
 def load_dense_matrix(is_init):
-    print(is_init)
     R = lil_matrix((158392, 69667))
     if is_init:
         all = pd.read_csv("../input/prepro.csv")
@@ -43,26 +42,35 @@ else:
     
 
 R = load_dense_matrix(is_init)
-print(R.shape)
 model = NMF(n_components = 10, init="random", random_state=0)
 W = model.fit_transform(R)
 H = model.components_
-w = W[0:6270,:]
-h = H[:, 0:2]
-# 検証用で行列を小さく小さく
-result = np.dot(w, h)
-user_recommend_pre_list = []
-i = 1
+result = []
 
-for rating_list in result.T:
-   user_recommend_pre_list.append({
-       "user_id": i,
-       "events": pd.DataFrame({
-           "event_id": range(1, len(rating_list) + 1),
-           "rating": rating_list
-           })
-       })
-   i = i + 1
+user_recommend_pre_list = []
+join_list = recommend_filter.user_join_list(log)
+# 検証用で行列を小さく小さく
+for i in range(2, 69668):
+
+    if i in list(test_target.user_id):
+        w = W
+        h = H[:, i:i+1]
+        rating_list = list(np.dot(w, h)[:, 0])
+        df = pd.DataFrame({
+                "event_id": range(1, len(rating_list) + 1),
+                "rating": rating_list
+        })
+        user_not_join_list = recommend_filter.join_event_filter(i, df, join_list)
+        filtered_age_recommend_list = recommend_filter.age_filter(i, user_not_join_list, events, users)
+        ranked_recommend_list = recommend_filter.ranking(filtered_age_recommend_list).sort_values(by="ranking")
+        limit_ranked_recommend_list = ranked_recommend_list[ranked_recommend_list["ranking"] <= 20]
+        recommend_list = limit_ranked_recommend_list[["event_id", "ranking"]]
+        user_recommend_pre_list.append({
+            "user_id": i,
+            "events": recommend_list
+            })
+    
+
 # 以下の実装は共通処理として切り出そう
 # なので、このmodel.pyもmf.pyなどに直す
 # 各モデルは
@@ -76,17 +84,15 @@ for rating_list in result.T:
 # みたいなlistを返すことを期待してfilter処理なんかを作っていこう。
 # だからこのスクリプトもべたでいろいろ書いてるが最終的にはapply? fit?みたいな関数にする
 
-join_list = recommend_filter.user_join_list(log)
-test_user_recommend_list = list(filter(lambda u: u["user_id"] in test_target.user_id, user_recommend_pre_list))
 
-user_not_join_list = recommend_filter.join_event_filter(1, test_user_recommend_list[0]["events"], join_list)
-filtered_age_recommend_list = recommend_filter.age_filter(1, user_not_join_list, events, users)
-ranked_recommend_list = recommend_filter.ranking(filtered_age_recommend_list).sort_values(by="ranking")
-limit_ranked_recommend_list = ranked_recommend_list[ranked_recommend_list["ranking"] <= 20]
-test_user_recommend_list[0]["events"] = limit_ranked_recommend_list[["event_id", "ranking"]]
+print(user_recommend_pre_list)
+for rcm in user_recommend_pre_list:
+    user_id = rcm["user_id"]
+    events = rcm["events"]
+    for index,event in events.iterrows():
+        event_id = event["event_id"]
+        rank = event["ranking"]
+        print("{},{},{}".format(user_id, event_id, rank))
 
-print(test_user_recommend_list)
-print(user_recommend_pre_list[1])
-print(user_recommend_pre_list[1]["user_id"] in test_target.user_id)
-print(test_target[test_target["user_id"]])
+
 #io.savemat("result", {"result": result})
