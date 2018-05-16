@@ -30,12 +30,11 @@ else
 	exit 1
 endif
 
-init-competition: kaggle $(COMPE_NAME)
-	kaggle competitions download -c $(COMPE_NAME) -p $(COMPE_NAME)/input
+init-competition: kaggle $(PROJECT)
+	kaggle competitions download -c $(PROJECT) -p $(PROJECT)/input
 
-$(COMPE_NAME):
-	mkdir -p $(COMPE_NAME)
-	mkdir -p $(COMPE_NAME)/input
+$(PROJECT): create-project
+
 
 kaggle:
 	pip install kaggle --user
